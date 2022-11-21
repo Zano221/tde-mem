@@ -23,6 +23,7 @@ std::vector<std::string> insertIntoRandom(std::string path) {
 
     std::vector<std::string> mem;
     std::vector<std::string> auxVec;
+    std::vector<std::string>::iterator it;
 
     std::string text;
     std::ifstream file(path);
@@ -31,14 +32,16 @@ std::vector<std::string> insertIntoRandom(std::string path) {
         auxVec.push_back(text);
     }
 
-    for(int i = 0; i < auxVec.size(); i++) {
-        int pos = rand() % auxVec.size();
+    int pos = 0;
+    while(auxVec.size()) {
+        int randomPos = rand() % auxVec.size();
 
-        /*if(mem.contains(auxVex[pos])) {
+        mem.push_back(auxVec[randomPos]);
+        auxVec.erase(auxVec.begin()+randomPos);
 
-        }*/
-
-        mem.push_back(auxVec[pos]);
+        std::string auxString = auxVec[pos];
+        pos++;
+        std::cout << pos << std::endl;
     }
 
     return mem;
@@ -51,22 +54,16 @@ int main() {
     std::vector<std::string> memoria;
 
     std::string ler;
-    std::string path = ".\\arquivos\\";
 
     std::cout << "Insira qual para leitura: ";
     std::cin >> ler;
 
-    path = path + ler + ".txt";
+    std::string path = ".\\arquivos\\" + ler + ".txt";
     
     int choice;
     std::cout << "Insira o modo de leitura desejado (1. Sequencial) (2. Random): ";
     std::cin >> choice;
 
-    std::string text;
-
-    std::cout << text << std::endl;
-
-    //file.open(path + ler + ".txt");
     switch(choice) {
         case 1:
             memoria = insertIntoSequencial(path); 
