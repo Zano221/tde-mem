@@ -5,33 +5,19 @@
 #include <chrono>
 #include <iomanip>
 
-
-std::vector<std::string> insertSAM(std::string path) {
+//Funcao inutil
+std::vector<std::string> insertSAM(std::vector<std::string> vec) {
     
     std::vector<std::string> mem;
-    
-    std::string text;
-    std::ifstream file(path);
-    while(std::getline(file, text)) {
-        mem.push_back(text);
-    }
-
-    file.close();
 
     return mem;
 }
 
-std::vector<std::string> insertRAM(std::string path) {
+std::vector<std::string> insertRAM(std::vector<std::string> auxVec) {
 
     std::vector<std::string> mem;
-    std::vector<std::string> auxVec;
-
-    std::string text;
-    std::ifstream file(path);
-
-    while(std::getline(file, text)) {
-        auxVec.push_back(text);
-    }
+    //std::vector<std::string> auxVec;
+    //auxVec = vec;
 
     int pos = 0;
     while(auxVec.size()) {
@@ -53,29 +39,65 @@ std::vector<std::string> insertRAM(std::string path) {
 
 int main() {
     
-    std::vector<std::string> memoria;
+    std::vector<std::string> memoria, readVec;
     std::chrono::time_point<std::chrono::system_clock> start, end;
 
     std::string ler;
+    std::string path;
+    std::string text;
+    std::ifstream file;
 
-    std::cout << "Carregue um arquivo de texto: ";
-    std::cin >> ler;
+    bool isOpen = false;
 
-    std::string path = ".\\arquivos\\" + ler + ".txt";
+    while(!isOpen) {
+        std::cout << "Carregue um arquivo de texto: ";
+        std::cin >> ler;
+
+        path = ".\\arquivos\\" + ler + ".txt";
+        file.open(path);
+
+        if(!file.is_open()) {
+            std::cout << std::endl << "  === Erro! Arquivo nao existe! ===    " << std::endl << std::endl;
+        }
+        else {
+            isOpen = true;
+        }
+
+    }
+
+    while(std::getline(file, text)) {
+            readVec.push_back(text);
+        }
     
+    std::string tipoMem;
     int choice;
     std::cout << "Insira o modo de leitura desejado (1. Sequencial) (2. Random): ";
     std::cin >> choice;
 
+    bool isEscolha = false;
+
     //Inserir
-    switch(choice) {
+    while(!isEscolha) {
+        switch(choice) {
         case 1:
-            memoria = insertSAM(path); 
+            tipoMem = "SAM";
+            isEscolha = true;
+            memoria = readVec;
             break;
         case 2:
-            memoria = insertRAM(path);
+            tipoMem = "RAM";
+            isEscolha = true;
+            memoria = insertRAM(readVec);
             break;
+        }
+
+        if(!isEscolha) {
+            std::cout << std::endl << "  === Erro! Escolha nao existe! (1. Sequencial) (2. Random) ===    " << std::endl << std::endl;
+            std::cout << "Insira o modo de leitura desejado (1. Sequencial) (2. Random): ";
+            std::cin >> choice;
+        }
     }
+    
     
     std::cout << " --- LISTA --- " << std::endl;
     for(int i = 0; i < memoria.size(); i++) {
@@ -83,28 +105,41 @@ int main() {
     }
     
     //Busca
-    std::cout << "Elemento a Buscar: ";
-    std::cin >> ler;
-
     int searchPos = 0;
-    start = std::chrono::system_clock::now();
-    for(int i = 0; i < memoria.size(); i++) {
+    bool isEncontrado = false;
 
-        if(ler == memoria[i]) {
-            break;
+    std::cout << "Elemento a Buscar: ";
+    while(!isEncontrado) {
+        std::cin >> ler;
+
+    
+        start = std::chrono::system_clock::now();
+        for(int i = 0; i < memoria.size(); i++) {
+
+            if(ler == memoria[i]) {
+                isEncontrado = true;
+                break;
+            }
+
+            searchPos++;
+        }
+        end = std::chrono::system_clock::now();
+
+        if(!isEncontrado) {
+            searchPos = 0;
+            std::cout << std::endl << "  === Erro! Elemento nao existe! Procure novamente ===    " << std::endl << std::endl;
+            std::cout << "Elemento a Buscar: ";
         }
 
-        searchPos++;
     }
-    end = std::chrono::system_clock::now();
+    
 
     std::chrono::duration<double> tempo = end - start;
 
     //Printar na tela
     std::setprecision(1);
-    std::cout << std::endl << "  === [RESULTADO] === " << std::endl << std::endl;
-    std::cout << "Tipo: SAM/RAM" << std::endl; 
+    std::cout << std::endl << std::endl << "  === [RESULTADO] === " << std::endl << std::endl;
+    std::cout << "Tipo: " << tipoMem << std::endl; 
     std::cout << "Posicao: " << searchPos << std::endl; 
-    std::cout << "Duracao de Pesquisa: " << tempo.count()*60*60 << " segundos" << std::endl; 
-    std::cout << "Tipo: SAM/RAM" << std::endl; 
+    std::cout << "Duracao de Pesquisa: " << tempo.count()*60*60 << " segundos" << std::endl << std::endl; 
 }
